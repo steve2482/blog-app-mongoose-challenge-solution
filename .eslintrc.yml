@@ -1,0 +1,14 @@
+extends: google
+env: 
+  jquery: true
+  browser: true
+rules:
+  max-len:
+  - 1
+  - 140
+  require-jsdoc:
+  - error
+  - require:
+      FunctionDeclaration: false
+      MethodDefinition: false
+      ClassDeclaration: false  
