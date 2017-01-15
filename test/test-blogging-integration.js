@@ -38,3 +38,18 @@ function removePostData() {
   console.warn('Deleting Database');
   return mongoose.connection.dropDatabase();
 }
+
+describe('API Endpoints', function() {
+  before(function() {
+    return runServer();
+  });
+  beforeEach(function() {
+    return seedPostData();
+  });
+  afterEach(function() {
+    return removePostData();
+  });
+  after(function() {
+    return closeServer();
+  });
+});
