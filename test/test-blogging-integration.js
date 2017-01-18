@@ -13,6 +13,7 @@ chai.use(chaiHttp);
 
 // create a function to seed data
 function seedPostData() {
+  console.log('Seeding blog post data');
   const seedData = [];
   for (let i = 1; i <= 10; i++) {
     seedData.push(generatePost());
@@ -41,7 +42,7 @@ function removePostData() {
 
 describe('API Endpoints', function() {
   before(function() {
-    return runServer();
+    return runServer(TEST_DATABASE_URL);
   });
   beforeEach(function() {
     return seedPostData();
