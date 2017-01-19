@@ -5,9 +5,9 @@ const mongoose = require('mongoose');
 
 const should = chai.should();
 
-const BlogPost = require('../models');
+const {BlogPost} = require('../models');
 const {app, runServer, closeServer} = require('../server');
-const TEST_DATABASE_URL = require('../config');
+const {TEST_DATABASE_URL} = require('../config');
 
 chai.use(chaiHttp);
 
@@ -30,7 +30,7 @@ function generatePost() {
     },
     title: faker.lorem.words(),
     content: faker.lorem.paragraph(),
-    created: Date.now
+    created: Date.now()
   };
 }
 
@@ -67,22 +67,40 @@ describe('API Endpoints', function() {
       let res;
       return chai.request(app)
       .get('/posts')
-      .then(function(res) {
-        res.status.should.be(200);
-        res.body.posts.length.should.be.of.at.least(1);
-        res.body.should.be.a('array');
-        res.body.forEach(function(item) {
-          item.should.be.a('object');
-          item.should.have.all.keys(
-            'id', 'title', 'author', 'content', 'created');
-          item.author.should.have.all.keys(
-            'firstName', 'lastName');
-        });
+      .then(function(_res) {
+        res = _res;
+        res.should.have.status(200);
+        res.body.length.should.be.of.at.least(1);
         return BlogPost.count();
       })
       .then(function(count) {
-        res.body.post.lenth.should.be(count);
+        res.body.should.have.length.of(count);
       });
+    });
+
+    it('Should return blogposts with right fields', function() {
+    // Strategy: Get back all restaurants, and ensure they have expected keys
+      let resPost;
+      return chai.request(app)
+        .get('/posts')
+        .then(function(res) {
+          res.should.have.status(200);
+          res.body.should.be.a('array');
+          res.body.forEach(function(post) {
+            post.should.be.a('object');
+            post.should.include.keys(
+              'id', 'title', 'content', 'author', 'created');
+          });
+          resPost = res.body[0];
+          return BlogPost.findById(resPost.id);
+        })
+        .then(function(post) {
+          resPost.id.should.equal(post.id);
+          resPost.title.should.equal(post.title);
+          resPost.content.should.equal(post.content);
+          resPost.author.should.contain(post.author.firstName);
+          resPost.author.should.contain(post.author.lastName);
+        });
     });
   });
 });
