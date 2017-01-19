@@ -167,4 +167,31 @@ describe('API Endpoints', function() {
         });
     });
   });
+
+  describe('DELETE Endpoint', function() {
+    // strategy:
+    //  1. get a restaurant
+    //  2. make a DELETE request for that restaurant's id
+    //  3. assert that response has right status code
+    //  4. prove that restaurant with the id doesn't exist in db anymore
+    it('Should delete an existing post', function() {
+      let deleted;
+      return BlogPost
+      .findOne()
+      .exec()
+      .then(function(post) {
+        deleted = post;
+        return chai.request(app)
+          .delete(`/posts/${post.id}`);
+      })
+      .then(function(res) {
+        res.should.have.status(204);
+        return BlogPost.findById(deleted.id)
+        .exec();
+      })
+      .then(function(post) {
+        should.not.exist(post);
+      });
+    });
+  });
 });
