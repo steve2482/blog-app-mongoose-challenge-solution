@@ -104,7 +104,7 @@ describe('API Endpoints', function() {
     });
   });
 
-  describe('Post Endpoint', function() {
+  describe('POST Endpoint', function() {
     // strategy: make a POST request with data,
     // then prove that the post we get back has
     // right keys, and that `id` is there (which means
@@ -130,6 +130,40 @@ describe('API Endpoints', function() {
           post.content.should.equal(newPost.content);
           post.author.firstName.should.equal(newPost.author.firstName);
           post.author.lastName.should.equal(newPost.author.lastName);
+        });
+    });
+  });
+
+  describe('PUT Endpoint', function() {
+    // strategy:
+    //  1. Get an existing post from db
+    //  2. Make a PUT request to update that post
+    //  3. Prove post returned by request contains data we sent
+    //  4. Prove post in db is correctly updated
+    it('Should update an existing post', function() {
+      const updateData = {
+        title: 'updated title',
+        content: 'content has been changed'
+      };
+      return BlogPost
+        .findOne()
+        .exec()
+        .then(function(post) {
+          updateData.id = post.id;
+          return chai.request(app)
+            .put('/posts/${post.id}')
+            .send(updateData);
+        })
+        .then(function(res) {
+          res.should.have.status(201);
+          res.body.should.be.a('object');
+          res.body.title.should.equal(updateData.title);
+          res.body.content.should.equal(updateData.content);
+          return BlogPost.findById(updateData.id);
+        })
+        .then(function(post) {
+          post.title.should.equal(updateData.title);
+          post.body.content.should.equal(updateData.content);
         });
     });
   });
