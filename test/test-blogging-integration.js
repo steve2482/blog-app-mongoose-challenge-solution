@@ -151,7 +151,7 @@ describe('API Endpoints', function() {
         .then(function(post) {
           updateData.id = post.id;
           return chai.request(app)
-            .put('/posts/${post.id}')
+            .put(`/posts/${post.id}`)
             .send(updateData);
         })
         .then(function(res) {
@@ -163,7 +163,7 @@ describe('API Endpoints', function() {
         })
         .then(function(post) {
           post.title.should.equal(updateData.title);
-          post.body.content.should.equal(updateData.content);
+          post.content.should.equal(updateData.content);
         });
     });
   });
