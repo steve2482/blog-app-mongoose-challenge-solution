@@ -57,9 +57,9 @@ describe('API Endpoints', function() {
   describe('GET request', function() {
     it('Should get and return all posts', function() {
       // strategy:
-      //    1. get back all restaurants returned by by GET request to `/restaurants`
+      //    1. get back all posts returned by by GET request to `/posts`
       //    2. prove res has right status, data type
-      //    3. prove the number of restaurants we got back is equal to number
+      //    3. prove the number of posts we got back is equal to number
       //       in db.
       //
       // need to have access to mutate and access `res` across
@@ -79,7 +79,7 @@ describe('API Endpoints', function() {
     });
 
     it('Should return blogposts with right fields', function() {
-    // Strategy: Get back all restaurants, and ensure they have expected keys
+    // Strategy: Get back all posts, and ensure they have expected keys
       let resPost;
       return chai.request(app)
         .get('/posts')
@@ -100,6 +100,36 @@ describe('API Endpoints', function() {
           resPost.content.should.equal(post.content);
           resPost.author.should.contain(post.author.firstName);
           resPost.author.should.contain(post.author.lastName);
+        });
+    });
+  });
+
+  describe('Post Endpoint', function() {
+    // strategy: make a POST request with data,
+    // then prove that the post we get back has
+    // right keys, and that `id` is there (which means
+    // the data was inserted into db)
+    it('Should add a new post', function() {
+      const newPost = generatePost();
+      return chai.request(app)
+        .post('/posts')
+        .send(newPost)
+        .then(function(res) {
+          res.should.have.status(201);
+          res.body.should.be.a('object');
+          res.body.should.include.keys(
+            'id', 'title', 'content', 'author', 'created');
+          res.body.id.should.not.be.null;
+          res.body.title.should.equal(newPost.title);
+          res.body.content.should.equal(newPost.content);
+          res.body.author.should.equal(`${newPost.author.firstName} ${newPost.author.lastName}`);
+          return BlogPost.findById(res.body.id);
+        })
+        .then(function(post) {
+          post.title.should.equal(newPost.title);
+          post.content.should.equal(newPost.content);
+          post.author.firstName.should.equal(newPost.author.firstName);
+          post.author.lastName.should.equal(newPost.author.lastName);
         });
     });
   });
